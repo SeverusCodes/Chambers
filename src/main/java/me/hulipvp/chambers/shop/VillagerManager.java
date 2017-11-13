@@ -1,7 +1,8 @@
 package me.hulipvp.chambers.shop;
 
-import java.util.Arrays;
-
+import me.hulipvp.chambers.Chambers;
+import me.hulipvp.chambers.shop.structure.VillagerType;
+import me.hulipvp.chambers.util.LocationUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
@@ -10,9 +11,7 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import me.hulipvp.chambers.Chambers;
-import me.hulipvp.chambers.shop.structure.VillagerType;
-import me.hulipvp.chambers.util.LocationUtil;
+import java.util.Arrays;
 
 public class VillagerManager {
 	
@@ -34,6 +33,32 @@ public class VillagerManager {
 			location.getChunk().load();
 		}
 		Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
+		create(villager, type, location);
+		return villager;
+	}
+	
+	/**
+	 * Spawn all of the Shop Villagers for each Team
+	 */
+	public void spawnAllVillagers() {
+		Chambers plugin = Chambers.getInstance();
+		//cleared up some one-liner brackets
+		plugin.getTeamManager().getAllPlayerTeams().forEach(team ->
+			Arrays.stream(VillagerType.values()).forEach(villagerType -> {
+				if (plugin.getDataFile().getString("TEAMS." + team.getType().name() + "." + villagerType.name()) != null)
+					spawnVillager(villagerType, LocationUtil.deserializeLocation(plugin.getDataFile().getString("TEAMS." + team.getType().name() + "." + villagerType.name())));
+			})
+		);
+	}
+
+	/**
+	 * Really? Do I have to explain this?
+	 *
+	 * @param villager The villager we want to set the attributes of.
+	 * @param type     The type of villager we want.
+	 * @param location The location where he's gonna be wowza
+	 */
+	public void create(Villager villager, VillagerType type, Location location) {
 		villager.setAdult();
 		villager.setAgeLock(true);
 		villager.setProfession(Profession.FARMER);
@@ -43,21 +68,6 @@ public class VillagerManager {
 		villager.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, -6, true), true);
 		villager.teleport(location, TeleportCause.PLUGIN);
 		villager.setHealth(20.0D);
-		return villager;
-	}
-	
-	/**
-	 * Spawn all of the Shop Villagers for each Team
-	 */
-	public void spawnAllVillagers() {
-		Chambers plugin = Chambers.getInstance();
-		plugin.getTeamManager().getAllPlayerTeams().forEach(team -> {
-			Arrays.stream(VillagerType.values()).forEach(villagerType -> {
-				if (plugin.getDataFile().getString("TEAMS." + team.getType().name() + "." + villagerType.name()) != null) {
-					spawnVillager(villagerType, LocationUtil.deserializeLocation(plugin.getDataFile().getString("TEAMS." + team.getType().name() + "." + villagerType.name())));
-				}
-			});
-		});
 	}
 
 }

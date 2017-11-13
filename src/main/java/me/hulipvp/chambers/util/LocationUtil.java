@@ -1,5 +1,6 @@
 package me.hulipvp.chambers.util;
 
+import org.apache.commons.lang.SerializationException;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -30,7 +31,7 @@ public class LocationUtil {
 		for (String attribute : attributes) {
 			String[] split = attribute.split(";");
 
-			if (split[0].equalsIgnoreCase("@w")) {
+			/*if (split[0].equalsIgnoreCase("@w")) {
 				world = Bukkit.getWorld(split[1]);
 				continue;
 			}
@@ -57,14 +58,40 @@ public class LocationUtil {
 
 			if (split[0].equalsIgnoreCase("@ya")) {
 				yaw = Float.parseFloat(split[1]);
+			}*/
+
+			/**
+
+			 Changed the thousands of if statements to a clean looking switch statement halleluja
+
+			 */
+			switch (split[0].toLowerCase()) {
+				case "@w":
+					world = Bukkit.getWorld(split[1]);
+					continue;
+				case "@x":
+					x = Double.parseDouble(split[1]);
+					continue;
+				case "@y":
+					y = Double.parseDouble(split[1]);
+					continue;
+				case "@z":
+					z = Double.parseDouble(split[1]);
+					continue;
+				case "@p":
+					pitch = Float.parseFloat(split[1]);
+					continue;
+				case "@ya":
+					pitch = Float.parseFloat(split[1]);
+					break;
+				default:
+					throw new SerializationException("Something went wrong with deserialization, don't touch the config serialized locations.");
 			}
 		}
 
-		if (world == null || x == null || y == null || z == null || pitch == null || yaw == null) {
-			return null;
-		}
 
-		return new Location(world, x, y, z, yaw, pitch);
+		//ohmalord ternary operators hallellula
+		return ((world == null) || (x == null) || (y == null) || (z == null) || (pitch == null) || (yaw == null)) ? null : new Location(world, x, y, z, yaw, pitch);
 	}
 
 }

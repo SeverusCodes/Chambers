@@ -1,38 +1,29 @@
 package me.hulipvp.chambers;
 
-import org.bukkit.plugin.java.JavaPlugin;
-
 import lombok.Getter;
 import me.hulipvp.chambers.claim.ClaimManager;
-import me.hulipvp.chambers.command.BalanceCommand;
-import me.hulipvp.chambers.command.GameCommand;
-import me.hulipvp.chambers.command.KothCommand;
-import me.hulipvp.chambers.command.PayCommand;
-import me.hulipvp.chambers.command.ToggleBoardCommand;
-import me.hulipvp.chambers.command.VillagerCommand;
+import me.hulipvp.chambers.command.*;
 import me.hulipvp.chambers.config.DataFile;
 import me.hulipvp.chambers.game.GameManager;
 import me.hulipvp.chambers.koth.KothManager;
 import me.hulipvp.chambers.listener.ListenerManager;
 import me.hulipvp.chambers.profile.ProfileManager;
+import me.hulipvp.chambers.profile.structure.Profile;
 import me.hulipvp.chambers.scoreboard.ScoreboardWrapper;
 import me.hulipvp.chambers.scoreboard.provider.ProviderResolver;
 import me.hulipvp.chambers.shop.VillagerManager;
 import me.hulipvp.chambers.team.TeamManager;
 import me.hulipvp.chambers.team.command.TeamCommand;
-import me.hulipvp.chambers.team.command.admin.TeamBypassCommand;
-import me.hulipvp.chambers.team.command.admin.TeamClaimCommand;
-import me.hulipvp.chambers.team.command.admin.TeamForceJoinCommand;
-import me.hulipvp.chambers.team.command.admin.TeamForceLeaveCommand;
-import me.hulipvp.chambers.team.command.admin.TeamForcePlaceCommand;
-import me.hulipvp.chambers.team.command.admin.TeamSetDtrCommand;
-import me.hulipvp.chambers.team.command.admin.TeamSetHomeCommand;
-import me.hulipvp.chambers.team.command.admin.TeamSetVillagerCommand;
+import me.hulipvp.chambers.team.command.admin.*;
 import me.hulipvp.chambers.team.command.normal.TeamChatCommand;
 import me.hulipvp.chambers.team.command.normal.TeamHelpCommand;
 import me.hulipvp.chambers.team.command.normal.TeamLocationCommand;
 import me.hulipvp.chambers.team.command.normal.TeamShowCommand;
+import me.hulipvp.chambers.team.structure.Team;
 import me.hulipvp.chambers.util.commandapi.CommandFramework;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.UUID;
 
 /**
  * Copyright (c) 2017 Zach Sills
@@ -85,7 +76,17 @@ public class Chambers extends JavaPlugin {
 		instance = this;
 
 		dataFile = new DataFile(this, "data");
-		
+		initHandlers();
+
+		registerAllCommands();
+
+	}
+
+	public void onDisable() {
+		gameManager.clearAllMobs();
+	}
+
+	void initHandlers() {
 		claimManager = new ClaimManager();
 		gameManager = new GameManager();
 		kothManager = new KothManager();
@@ -97,15 +98,8 @@ public class Chambers extends JavaPlugin {
 		scoreboardWrapper = new ScoreboardWrapper(this, new ProviderResolver());
 
 		commandFramework = new CommandFramework(this);
+	}
 
-		registerAllCommands();
-		
-	}
-	
-	public void onDisable() {
-		gameManager.clearAllMobs();
-	}
-	
 	private void registerAllCommands() {
 		new BalanceCommand();
 		new GameCommand();
@@ -126,6 +120,16 @@ public class Chambers extends JavaPlugin {
 		new TeamHelpCommand();
 		new TeamLocationCommand();
 		new TeamShowCommand();
+	}
+
+	//A shortcut
+	public Profile getProfileByUUID(UUID uuid) {
+		return getProfileManager().getProfileByUuid(uuid);
+	}
+
+	//Another one.
+	public Team getTeamByName(String name) {
+		return getTeamManager().getTeamByName(name);
 	}
 	
 }

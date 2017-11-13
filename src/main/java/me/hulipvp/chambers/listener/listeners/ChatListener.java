@@ -1,16 +1,15 @@
 package me.hulipvp.chambers.listener.listeners;
 
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-
 import me.hulipvp.chambers.Chambers;
 import me.hulipvp.chambers.game.structure.Game;
 import me.hulipvp.chambers.profile.structure.ChatStatus;
 import me.hulipvp.chambers.profile.structure.Profile;
 import me.hulipvp.chambers.profile.structure.ProfileStatus;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class ChatListener implements Listener {
 	
@@ -19,13 +18,12 @@ public class ChatListener implements Listener {
 		Game game = Chambers.getInstance().getGameManager().getGame();
 		Profile profile = Chambers.getInstance().getProfileManager().getProfileByUuid(event.getPlayer().getUniqueId());
 		String message = event.getMessage();
-		
+
 		if (!game.hasStarted()) {
-			if (profile.getTeam() == null) {
+			if (profile.getTeam() == null)
 				event.setFormat(ChatColor.WHITE + event.getPlayer().getName() + ": " + event.getMessage());
-			} else {
+			else
 				event.setFormat(getGlobalFormat(event.getPlayer(), profile, message.substring(1)));
-			}
 			return;
 		}
 		

@@ -1,5 +1,12 @@
 package me.hulipvp.chambers.claim.listener;
 
+import me.hulipvp.chambers.Chambers;
+import me.hulipvp.chambers.event.movements.PlayerEnterClaimEvent;
+import me.hulipvp.chambers.event.movements.PlayerLeaveClaimEvent;
+import me.hulipvp.chambers.game.structure.Game;
+import me.hulipvp.chambers.game.structure.GameStatus;
+import me.hulipvp.chambers.team.structure.Team;
+import me.hulipvp.chambers.team.structure.TeamType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -8,19 +15,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import me.hulipvp.chambers.Chambers;
-import me.hulipvp.chambers.event.movements.PlayerEnterClaimEvent;
-import me.hulipvp.chambers.event.movements.PlayerLeaveClaimEvent;
-import me.hulipvp.chambers.game.structure.Game;
-import me.hulipvp.chambers.game.structure.GameStatus;
-import me.hulipvp.chambers.team.structure.Team;
-import me.hulipvp.chambers.team.structure.TeamType;
-
 public class ClaimMoveListener implements Listener {
-	
+
+	private Chambers plugin;
+
+	public ClaimMoveListener(Chambers plugin) {
+		this.plugin = plugin;
+	}
+
 	@EventHandler
 	public void onMove(PlayerMoveEvent event) {
-		Game game = Chambers.getInstance().getGameManager().getGame();
+		Game game = plugin.getGameManager().getGame();
 		if (game.getStatus() != GameStatus.INGAME) {
 			return;
 		}
@@ -28,8 +33,8 @@ public class ClaimMoveListener implements Listener {
 		Location from = event.getFrom();
 		if (to.getBlockX() != from.getBlockX() || to.getBlockZ() != from.getBlockZ()) {
 			Player player = event.getPlayer();
-			Team toTeam = Chambers.getInstance().getClaimManager().getTeamAt(to);
-			Team fromTeam = Chambers.getInstance().getClaimManager().getTeamAt(from);
+			Team toTeam = plugin.getClaimManager().getTeamAt(to);
+			Team fromTeam = plugin.getClaimManager().getTeamAt(from);
 			if (toTeam != fromTeam) {
 				Bukkit.getPluginManager().callEvent(new PlayerEnterClaimEvent(player, toTeam.getClaim()));
 				Bukkit.getPluginManager().callEvent(new PlayerLeaveClaimEvent(player, fromTeam.getClaim()));

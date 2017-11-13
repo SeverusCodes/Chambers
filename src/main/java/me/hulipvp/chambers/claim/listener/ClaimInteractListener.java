@@ -1,5 +1,11 @@
 package me.hulipvp.chambers.claim.listener;
 
+import me.hulipvp.chambers.Chambers;
+import me.hulipvp.chambers.claim.structure.Claim;
+import me.hulipvp.chambers.claim.structure.ClaimProfile;
+import me.hulipvp.chambers.claim.structure.Pillar;
+import me.hulipvp.chambers.profile.structure.Profile;
+import me.hulipvp.chambers.util.LocationUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -8,31 +14,31 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import me.hulipvp.chambers.Chambers;
-import me.hulipvp.chambers.claim.structure.Claim;
-import me.hulipvp.chambers.claim.structure.ClaimProfile;
-import me.hulipvp.chambers.claim.structure.Pillar;
-import me.hulipvp.chambers.profile.structure.Profile;
-import me.hulipvp.chambers.util.LocationUtil;
-
 public class ClaimInteractListener implements Listener {
-	
+
+    private Chambers plugin;
+
+    public ClaimInteractListener(Chambers plugin) {
+        this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
 	@EventHandler
 	public void onInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		if (player.getItemInHand() == null || player.getItemInHand().getType() != Material.GOLD_HOE) {
 			return;
 		}
-		Profile profile = Chambers.getInstance().getProfileManager().getProfileByUuid(player.getUniqueId());
-		if (!Chambers.getInstance().getClaimManager().isClaiming(profile)) {
-			return;
+        Profile profile = plugin.getProfileManager().getProfileByUuid(player.getUniqueId());
+        if (!plugin.getClaimManager().isClaiming(profile)) {
+            return;
 		}
 		if (profile.getTeam() == null || profile.getTeam().getType().getClaimMaterial() == null) {
 			player.sendMessage(ChatColor.RED + "Please join a Team to claim for.");
 			return;
 		}
-		ClaimProfile claimProfile = Chambers.getInstance().getClaimManager().getClaimProfile(profile);
-		Action action = event.getAction();
+        ClaimProfile claimProfile = plugin.getClaimManager().getClaimProfile(profile);
+        Action action = event.getAction();
 		event.setCancelled(true);
 		switch (action) {
 		case RIGHT_CLICK_BLOCK: {
@@ -73,14 +79,14 @@ public class ClaimInteractListener implements Listener {
 				claimProfile.clearPillars();
 				Claim claim = new Claim(claimProfile.getCornerOne(), claimProfile.getCornerTwo(), profile.getTeam());
 				profile.getTeam().setClaim(claim);
-				Chambers.getInstance().getClaimManager().addClaim(claim);
-				Chambers.getInstance().getDataFile().getConfiguration().set("TEAMS." + profile.getTeam().getType().name() + ".CORNERONE", LocationUtil.serializeLocation(claimProfile.getCornerOne()));
-				Chambers.getInstance().getDataFile().getConfiguration().set("TEAMS." + profile.getTeam().getType().name() + ".CORNERTWO", LocationUtil.serializeLocation(claimProfile.getCornerTwo()));
-				Chambers.getInstance().getDataFile().save();
-				Chambers.getInstance().getDataFile().load();
-				Chambers.getInstance().getClaimManager().removeClaimProfile(profile);
-				player.getInventory().removeItem(Chambers.getInstance().getClaimManager().getClaimingWand());
-				player.sendMessage(ChatColor.GRAY + "Selection claimed for " + profile.getTeam().getFormattedName() + ChatColor.GRAY + ".");
+                plugin.getClaimManager().addClaim(claim);
+                plugin.getDataFile().getConfiguration().set("TEAMS." + profile.getTeam().getType().name() + ".CORNERONE", LocationUtil.serializeLocation(claimProfile.getCornerOne()));
+                plugin.getDataFile().getConfiguration().set("TEAMS." + profile.getTeam().getType().name() + ".CORNERTWO", LocationUtil.serializeLocation(claimProfile.getCornerTwo()));
+                plugin.getDataFile().save();
+                plugin.getDataFile().load();
+                plugin.getClaimManager().removeClaimProfile(profile);
+                player.getInventory().removeItem(plugin.getClaimManager().getClaimingWand());
+                player.sendMessage(ChatColor.GRAY + "Selection claimed for " + profile.getTeam().getFormattedName() + ChatColor.GRAY + ".");
 			}
 			break;
 		}

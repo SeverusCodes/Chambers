@@ -1,15 +1,15 @@
 package me.hulipvp.chambers.config;
 
+import lombok.SneakyThrows;
+import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * I'm too lazy to ask alex for permission to use this class, so I typed
@@ -19,42 +19,44 @@ import org.bukkit.plugin.java.JavaPlugin;
  * (but I still typed it out line by line)
  *
  * @author bizarrealex
+ *
+ * That's great and all, Huli, but this class needs some improvement.
  */
-public class DataFile {
+
+//First, let's extend YamlConfiguration, so we don't have to add boilerplate code such as set, get, etc.
+public class DataFile extends YamlConfiguration {
 
 	private File file;
-	private YamlConfiguration configuration;
 
 	public DataFile(JavaPlugin plugin, String name) {
 		file = new File(plugin.getDataFolder(), name + ".yml");
 
-		if (!file.getParentFile().exists()) {
-			file.getParentFile().mkdir();
-		}
+        //It's a one-liner, no need for brackets.
+        if (!file.getParentFile().exists())
+            file.getParentFile().mkdir();
 
 		plugin.saveResource(name + ".yml", false);
 
-		configuration = YamlConfiguration.loadConfiguration(file);
-	}
+        loadConfiguration(file);
+    }
 
 	/**
 	 * Loads the file<br>
 	 * You can also use this method to reload the file
 	 */
 	public void load() {
-		configuration = YamlConfiguration.loadConfiguration(file);
-	}
+        loadConfiguration(file);
+    }
 
 	/**
 	 * If you don't understand this, why are you even reading this
 	 */
-	public void save() {
-		try {
-			configuration.save(file);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+
+    //Make this code look pretty.
+    @SneakyThrows
+    public void save() {
+        save(file);
+    }
 
 	/**
 	 * Get the configuration so you can access it
@@ -62,80 +64,17 @@ public class DataFile {
 	 * @return configuration - the YamlConfiguration object
 	 */
 	public YamlConfiguration getConfiguration() {
-		return configuration;
-	}
+        return this;
+    }
 
-	/**
-	 * Retrieve a double from the file<br>
-	 * Will return as <tt>0.0</tt> if no double by the path name was found
-	 * 
-	 * @param path - the path of the double you're looking for
-	 * @return double - the double which is found in the provided path
-	 */
-	public double getDouble(String path) {
-		if (configuration.contains(path)) {
-			return configuration.getDouble(path);
-		}
-		return 0.0;
-	}
+    //Deleted a lot of unnecessary code such as getters and setters.
 
-	/**
-	 * Get an int from the file<br>
-	 * Will returin as <tt>0</tt> is no int was found in the provided path
-	 * 
-	 * @param path - the path of the integer value that you're looking for
-	 * @return int - the int which was found in the provided path
-	 */
-	public int getInt(String path) {
-		if (configuration.contains(path)) {
-			return configuration.getInt(path);
-		}
-		return 0;
-	}
 
-	/**
-	 * Retrieve a boolean value from the file<br>
-	 * Will return as a default value of <tt>false</tt> if there was nothing
-	 * found in the provided path
-	 * 
-	 * @param path - the path of the boolean that you're looking for
-	 * @return boolean - the boolean which was found in the provided path
-	 */
-	public boolean getBoolean(String path) {
-		if (configuration.contains(path)) {
-			return configuration.getBoolean(path);
-		}
-		return false;
-	}
-
-	/**
-	 * Retrieve a String from the file<br>
-	 * Will return an empty String if there was no String found in the provided
-	 * path
-	 * 
-	 * @param path - the path of the String you're looking for
-	 * @return String - the String which was found in the provided path
-	 */
-	public String getString(String path) {
-		if (configuration.contains(path)) {
-			return ChatColor.translateAlternateColorCodes('&', configuration.getString(path));
-		}
-		return null;
-	}
-
-	/**
-	 * Retrieve a List of Strings from the file<br>
-	 * Will return a list saying the path is invalid is no String List is found
-	 * in the provided path
-	 * 
-	 * @param path - the path you wish to find a String list at
-	 * @return strings - a List of Strings which was found in the provided path
-	 */
 	public List<String> getStringList(String path) {
-		if (configuration.contains(path)) {
-			List<String> strings = new ArrayList<>();
-			configuration.getStringList(path).stream().forEach(string -> strings.add(ChatColor.translateAlternateColorCodes('&', string)));
-			return strings;
+        if (contains(path)) {
+            List<String> strings = new ArrayList<>();
+            getStringList(path).stream().forEach(string -> strings.add(ChatColor.translateAlternateColorCodes('&', string)));
+            return strings;
 		}
 		return Arrays.asList("Invalid path.");
 	}
